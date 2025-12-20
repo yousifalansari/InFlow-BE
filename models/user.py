@@ -1,11 +1,12 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Enum
 from .base import BaseModel
 from passlib.context import CryptContext
 from datetime import datetime, timezone, timedelta
 import jwt
 from config.environment import secret
-from models.hoot import HootModel
-from models.comment import CommentModel
+# Enum
+from enums.role import Role
+# Associations
 from sqlalchemy.orm import relationship
 
 
@@ -19,9 +20,11 @@ class UserModel(BaseModel):
     username = Column(String, nullable=False, unique=True)
     email = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=True)
+    # role = Column(Enum(Role), default=Role.OWNER)
+    role = Column(String, default="owner", nullable=False)
 
-    hoots = relationship('HootModel', back_populates='user', cascade='all, delete-orphan')
-    comments = relationship('CommentModel', back_populates='user', cascade='all, delete-orphan')
+    # hoots = relationship('HootModel', back_populates='user', cascade='all, delete-orphan')
+    # comments = relationship('CommentModel', back_populates='user', cascade='all, delete-orphan')
 
     def set_password(self, password: str):
         self.password_hash = pwd_context.hash(password)

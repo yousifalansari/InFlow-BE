@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from controllers.users import router as UsersRouter
-from controllers.hoots import router as HootsRouter  # NEW
+# from controllers.hoots import router as HootsRouter  # NEW
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -24,7 +24,7 @@ app.add_middleware(
 
 # Register routers
 app.include_router(UsersRouter, prefix="/api", tags=["Users"])
-app.include_router(HootsRouter, prefix="/api", tags=["Hoots"])  # NEW
+# app.include_router(HootsRouter, prefix="/api", tags=["Hoots"])  # NEW
 
 @app.get('/')
 def home():
