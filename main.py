@@ -1,11 +1,11 @@
 from fastapi import FastAPI
-from controllers.users import router as UsersRouter
-# from controllers.hoots import router as HootsRouter  # NEW
+from controllers.quotes import router as QuotesRouter
+from controllers.clients import router as ClientsRouter
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
-    title="Hoot API",
-    description="A blogging platform API built with FastAPI",
+    title="Quote Management API",
+    description="A quote management system API built with FastAPI",
     version="1.0.0"
 )
 
@@ -23,9 +23,9 @@ app.add_middleware(
 )
 
 # Register routers
-app.include_router(UsersRouter, prefix="/api", tags=["Users"])
-# app.include_router(HootsRouter, prefix="/api", tags=["Hoots"])  # NEW
+app.include_router(QuotesRouter, prefix="/api", tags=["Quotes"])
+app.include_router(ClientsRouter, prefix="/api", tags=["Clients"])
 
 @app.get('/')
 def home():
-    return {'message': 'Welcome to Hoot API! Visit /docs for API documentation.'}
+    return {'message': 'Welcome to Quote Management API! Visit /docs for API documentation.'}
