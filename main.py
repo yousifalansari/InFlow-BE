@@ -1,7 +1,11 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from controllers.quotes import router as QuotesRouter
 from controllers.clients import router as ClientsRouter
-from fastapi.middleware.cors import CORSMiddleware
+from models.base import Base
+from database import engine
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Quote Management API",

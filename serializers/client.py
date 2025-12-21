@@ -6,7 +6,7 @@ class ClientSchema(BaseModel):
     phone: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True  
 
 class ClientResponseSchema(BaseModel):
     id: int
@@ -15,4 +15,4 @@ class ClientResponseSchema(BaseModel):
     phone: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True  

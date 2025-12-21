@@ -9,7 +9,7 @@ class QuoteSchema(BaseModel):
     expiry_date: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True  
 
 class QuoteResponseSchema(BaseModel):
     id: int
@@ -21,4 +21,4 @@ class QuoteResponseSchema(BaseModel):
     expiry_date: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True  
