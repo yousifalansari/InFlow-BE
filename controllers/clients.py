@@ -8,7 +8,6 @@ router = APIRouter()
 
 @router.post("/clients", response_model=ClientResponseSchema)
 def create_client(client: ClientSchema, db: Session = Depends(get_db)):
-    # Check if the email already exists
     existing_client = db.query(Client).filter(Client.email == client.email).first()
     if existing_client:
         raise HTTPException(status_code=400, detail="Email already exists")
@@ -18,3 +17,8 @@ def create_client(client: ClientSchema, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_client)
     return new_client
+
+@router.get("/clients")
+def get_clients(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    clients = db.query(Client).offset(skip).limit(limit).all()
+    return clients
