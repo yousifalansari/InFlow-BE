@@ -7,4 +7,4 @@ from . import user
 
 # add future models here as needed
 
-__all__ = ["BaseModel"]
+__all__ = ["BaseModel", "Quote", "Client"]

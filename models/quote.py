@@ -1,0 +1,13 @@
+from sqlalchemy import Column, Integer, Numeric, Date, String, ForeignKey
+from models.base import Base
+
+class Quote(Base):
+    __tablename__ = "quotes"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
+    status = Column(String(50), default="draft", nullable=False)
+    subtotal = Column(Numeric(10, 2), nullable=False)
+    tax = Column(Numeric(10, 2), default=0, nullable=False)
+    total = Column(Numeric(10, 2), nullable=False)
+    expiry_date = Column(Date, nullable=True)
