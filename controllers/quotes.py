@@ -13,3 +13,8 @@ def create_quote(quote: QuoteSchema, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_quote)
     return new_quote
+
+@router.get("/quotes")
+def get_quotes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    quotes = db.query(Quote).offset(skip).limit(limit).all()
+    return quotes

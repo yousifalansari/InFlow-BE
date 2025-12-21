@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import date
 
 class QuoteSchema(BaseModel):
     client_id: int
@@ -6,7 +7,7 @@ class QuoteSchema(BaseModel):
     subtotal: float
     tax: float
     total: float
-    expiry_date: str
+    expiry_date: date
 
     class Config:
         from_attributes = True  
@@ -18,7 +19,7 @@ class QuoteResponseSchema(BaseModel):
     subtotal: float
     tax: float
     total: float
-    expiry_date: str
+    expiry_date: date
 
     class Config:
         from_attributes = True  
