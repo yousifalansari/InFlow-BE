@@ -29,3 +29,16 @@ def get_quote(quote_id: int, db: Session = Depends(get_db)):
 @router.get("/quotes/client/{client_id}")
 def get_quotes_by_client(client_id: int, db: Session = Depends(get_db)):
     return db.query(Quote).filter_by(client_id=client_id).all()
+
+@router.put("/quotes/{quote_id}", response_model=QuoteResponseSchema)
+def update_quote(quote_id: int, quote: QuoteSchema, db: Session = Depends(get_db)):
+    db_quote = db.query(Quote).get(quote_id)
+    if not db_quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    for key, value in quote.dict().items():
+        setattr(db_quote, key, value)
+    
+    db.commit()
+    db.refresh(db_quote)
+    return db_quote
