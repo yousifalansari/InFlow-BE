@@ -25,3 +25,7 @@ def get_quote(quote_id: int, db: Session = Depends(get_db)):
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
     return quote
+
+@router.get("/quotes/client/{client_id}")
+def get_quotes_by_client(client_id: int, db: Session = Depends(get_db)):
+    return db.query(Quote).filter_by(client_id=client_id).all()
