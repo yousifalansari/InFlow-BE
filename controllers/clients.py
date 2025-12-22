@@ -29,3 +29,16 @@ def get_client(client_id: int, db: Session = Depends(get_db)):
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
     return client
+
+@router.put("/clients/{client_id}", response_model=ClientResponseSchema)
+def update_client(client_id: int, client: ClientSchema, db: Session = Depends(get_db)):
+    db_client = db.query(Client).get(client_id)
+    if not db_client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    for key, value in client.dict().items():
+        setattr(db_client, key, value)
+    
+    db.commit()
+    db.refresh(db_client)
+    return db_client
