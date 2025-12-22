@@ -42,3 +42,13 @@ def update_quote(quote_id: int, quote: QuoteSchema, db: Session = Depends(get_db
     db.commit()
     db.refresh(db_quote)
     return db_quote
+
+@router.delete("/quotes/{quote_id}")
+def delete_quote(quote_id: int, db: Session = Depends(get_db)):
+    quote = db.query(Quote).get(quote_id)
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    db.delete(quote)
+    db.commit()
+    return {"message": "Quote deleted successfully"}
