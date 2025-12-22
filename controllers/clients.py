@@ -42,3 +42,13 @@ def update_client(client_id: int, client: ClientSchema, db: Session = Depends(ge
     db.commit()
     db.refresh(db_client)
     return db_client
+
+@router.delete("/clients/{client_id}")
+def delete_client(client_id: int, db: Session = Depends(get_db)):
+    client = db.query(Client).filter(Client.id == client_id).first()
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    db.delete(client)
+    db.commit()
+    return {"message": "Client deleted successfully"}

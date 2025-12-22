@@ -4,8 +4,6 @@ from passlib.context import CryptContext
 from datetime import datetime, timezone, timedelta
 import jwt
 from config.environment import secret
-# Enum
-from enums.role import Role
 # Associations
 from sqlalchemy.orm import relationship
 

@@ -6,7 +6,7 @@ class UserSchema(BaseModel):
     password: str
 
     class Config:
-        orm_mode = True
+       from_attributes = True
 
 class UserResponseSchema(BaseModel):
     username: str
@@ -23,4 +23,4 @@ class UserToken(BaseModel):
     message: str  # Success message
 
     class Config:
-        orm_mode = True
+        from_attributes = True
