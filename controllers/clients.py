@@ -22,3 +22,10 @@ def create_client(client: ClientSchema, db: Session = Depends(get_db)):
 def get_clients(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     clients = db.query(Client).offset(skip).limit(limit).all()
     return clients
+
+@router.get("/clients/{client_id}", response_model=ClientResponseSchema)
+def get_client(client_id: int, db: Session = Depends(get_db)):
+    client = db.query(Client).get(client_id)
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    return client
