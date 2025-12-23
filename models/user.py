@@ -15,6 +15,7 @@ class UserModel(Base):
     email = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=True)
     role = Column(String, nullable=True)
+    company_name = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 

@@ -18,7 +18,8 @@ def create_user(user: UserSchema, db: Session = Depends(get_db)):
     new_user = UserModel(
         username=user.username,
         email=user.email,
-        role="user"
+        role="user",
+        company_name=user.company_name 
     )
     new_user.set_password(user.password)
 
@@ -27,6 +28,7 @@ def create_user(user: UserSchema, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     return new_user
+
 
 @router.post("/login", response_model=UserToken)
 def login(user: UserLogin, db: Session = Depends(get_db)):
