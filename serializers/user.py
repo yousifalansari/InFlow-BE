@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class UserSchema(BaseModel):
     username: str
@@ -6,21 +7,25 @@ class UserSchema(BaseModel):
     password: str
 
     class Config:
-       from_attributes = True
+        orm_mode = True
 
 class UserResponseSchema(BaseModel):
     username: str
     email: str
-
-# New schema for user login (captures username and password during login)
-class UserLogin(BaseModel):
-    username: str  # Username provided by the user during login
-    password: str  # Plain text password provided by the user during login
-
-# New schema for the response (containing the JWT token and a success message)
-class UserToken(BaseModel):
-    token: str  # JWT token generated upon successful login
-    message: str  # Success message
+    role: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     class Config:
-        from_attributes = True
+        orm_mode = True
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+class UserToken(BaseModel):
+    token: str
+    message: str
+
+    class Config:
+        orm_mode = True

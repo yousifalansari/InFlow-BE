@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from controllers.quotes import router as QuotesRouter
 from controllers.clients import router as ClientsRouter
+from controllers.users import router as UserRouter
 from models.base import Base
 from database import engine
 
@@ -29,6 +30,8 @@ app.add_middleware(
 # Register routers
 app.include_router(QuotesRouter, prefix="/api", tags=["Quotes"])
 app.include_router(ClientsRouter, prefix="/api", tags=["Clients"])
+app.include_router(UserRouter, prefix="/api")
+
 
 @app.get('/')
 def home():

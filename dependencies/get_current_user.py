@@ -1,3 +1,6 @@
+
+# dependencies/get_current_user.py
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
@@ -37,4 +40,3 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(http_be
 
     # Return the user if the token is valid
     return user
-

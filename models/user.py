@@ -1,28 +1,22 @@
-from sqlalchemy import Column, Integer, String, Enum
-from .base import BaseModel
+from sqlalchemy import Column, Integer, String, DateTime
+from .base import Base
 from passlib.context import CryptContext
 from datetime import datetime, timezone, timedelta
 import jwt
 from config.environment import secret
-# Associations
-from sqlalchemy.orm import relationship
-
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-class UserModel(BaseModel):
-
+class UserModel(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, nullable=False, unique=True)
     email = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=True)
-    # role = Column(Enum(Role), default=Role.OWNER)
-    role = Column(String, default="owner", nullable=False)
-
-    # hoots = relationship('HootModel', back_populates='user', cascade='all, delete-orphan')
-    # comments = relationship('CommentModel', back_populates='user', cascade='all, delete-orphan')
+    role = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     def set_password(self, password: str):
         self.password_hash = pwd_context.hash(password)
@@ -34,9 +28,7 @@ class UserModel(BaseModel):
         payload = {
             "exp": datetime.now(timezone.utc) + timedelta(days=1),
             "iat": datetime.now(timezone.utc),
-            "sub": str(self.id),
+            "sub": self.id
         }
-
         token = jwt.encode(payload, secret, algorithm="HS256")
-
         return token
