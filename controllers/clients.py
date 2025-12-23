@@ -36,8 +36,9 @@ def update_client(client_id: int, client: ClientSchema, db: Session = Depends(ge
     if not db_client:
         raise HTTPException(status_code=404, detail="Client not found")
     
-    for key, value in client.dict().items():
-        setattr(db_client, key, value)
+    updatable_fields = ['name', 'email', 'phone']
+    for key in updatable_fields:
+        setattr(db_client, key, getattr(client, key))
     
     db.commit()
     db.refresh(db_client)
