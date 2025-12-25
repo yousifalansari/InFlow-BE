@@ -15,4 +15,4 @@ class Invoice(BaseModel):
     balance_due = Column(Numeric(10, 2), nullable=False)
 
     quote = relationship("Quote", back_populates="invoice")
-    # payments = relationship("Payment", back_populates="invoice")
+    payments = relationship("Payment", back_populates="invoice")

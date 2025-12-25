@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from controllers.quotes import router as QuotesRouter
 from controllers.clients import router as ClientsRouter
 from controllers.invoices import router as InvoicesRouter
+from controllers.payments import router as PaymentsRouter
+from controllers.analytics import router as AnalyticsRouter
 from controllers.users import router as UserRouter
 from models.base import Base
 from database import engine
@@ -32,6 +34,8 @@ app.add_middleware(
 app.include_router(QuotesRouter, prefix="/api", tags=["Quotes"])
 app.include_router(ClientsRouter, prefix="/api", tags=["Clients"])
 app.include_router(InvoicesRouter, prefix="/api", tags=["Invoices"])
+app.include_router(PaymentsRouter, prefix="/api")
+app.include_router(AnalyticsRouter, prefix="/api")
 app.include_router(UserRouter, prefix="/api")
 
 
