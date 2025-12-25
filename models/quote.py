@@ -14,3 +14,4 @@ class Quote(BaseModel):
 
     client = relationship("Client", back_populates="quotes")
     line_items = relationship("LineItem", back_populates="quote", cascade="all, delete-orphan")
+    invoice = relationship("Invoice", back_populates="quote", uselist=False)
