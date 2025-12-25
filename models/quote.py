@@ -13,3 +13,4 @@ class Quote(BaseModel):
     expiry_date = Column(Date, nullable=True)
 
     client = relationship("Client", back_populates="quotes")
+    line_items = relationship("LineItem", back_populates="quote", cascade="all, delete-orphan")
