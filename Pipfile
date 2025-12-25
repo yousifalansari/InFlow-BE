@@ -8,13 +8,17 @@ fastapi = "*"
 uvicorn = "*"
 sqlalchemy = "*"
 psycopg2-binary = "*"
-pydantic = "*"
 passlib = "*"
 bcrypt = "==4.0.1"
 pyjwt = "*"
 dotenv = "*"
 alembic = "*"
+reportlab = "*"
+email-validator = "*"
+pydantic = {extras = ["email"], version = "*"}
 
 [dev-packages]
+httpx = "*"
+pytest = "*"
 
 [requires]

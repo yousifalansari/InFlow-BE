@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from .base import Base
+from sqlalchemy.orm import relationship
 from passlib.context import CryptContext
 from datetime import datetime, timezone, timedelta
 import jwt
@@ -19,6 +20,8 @@ class UserModel(Base):
     created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
+    clients = relationship("Client", back_populates="user")
+
     def set_password(self, password: str):
         self.password_hash = pwd_context.hash(password)
 
@@ -29,7 +32,7 @@ class UserModel(Base):
         payload = {
             "exp": datetime.now(timezone.utc) + timedelta(days=1),
             "iat": datetime.now(timezone.utc),
-            "sub": self.id
+            "sub": str(self.id)
         }
         token = jwt.encode(payload, secret, algorithm="HS256")
         return token
