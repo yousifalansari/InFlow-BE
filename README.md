@@ -1,131 +1,149 @@
-# Python FastAPI Authorization Solution
+# InFlow - Backend
 
-## About
+## Overview
+InFlow is a comprehensive invoice and quote management system designed for freelancers and small to medium-sized businesses (SMBs). This backend API powers the InFlow application, enabling users to manage clients, generate quotes, convert them to invoices, track payments, and visualize analytics.
 
-This repo contains the solution code for the [Python FastAPI Authorization](https://pages.git.generalassemb.ly/modular-curriculum-all-courses/python-fastapi-authorization/canvas-landing-pages/fallback.html) Lesson
+## Features
+- **User Authentication**: Secure JWT-based registration and login.
+- **Client Management**: Create, read, update, and delete client profiles.
+- **Quote Management**: Create quotes with line items, calculate totals, and generate PDF versions.
+- **Invoice Generation**: Convert quotes to invoices, preventing duplicates, and implementing status workflows (Sent, Paid, Overdue).
+- **Payment Tracking**: Record partial or full payments, automatically updating invoice balance and status.
+- **Analytics**: Real-time dashboard data including monthly revenue, outstanding balances, and CSV export.
+- **PDF Generation**: Professional PDF generation for Quotes and Invoices.
+
+
+## Technologies Used
+- **Language**: Python 3.x
+- **Framework**: FastAPI
+- **Database**: PostgreSQL
+- **ORM**: SQLAlchemy
+- **Migrations**: Alembic
+- **Validation**: Pydantic
+- **Authentication**: PyJWT (JSON Web Tokens)
+- **PDF Generation**: ReportLab
+- **Testing**: Pytest, HTTPX
+
+## Project Structure
+```
+InFlow-BE/
+├── alembic/              # Database migration scripts
+├── config/               # Configuration and environment variables
+├── controllers/          # API Route Handlers (Endpoints)
+├── data/                 # Data seeding scripts
+├── dependencies/         # FastAPI dependencies (auth, db session)
+├── models/               # SQLAlchemy Database Models
+├── serializers/          # Pydantic Schemas (Request/Response)
+├── database.py           # Database connection setup
+├── main.py               # Application entry point
+├── Pipfile               # Dependency definitions (Pipenv)
+└── .env                  # Environment variables
+```
 
 ## Getting Started
 
-1. Fork and clone this repo.
+### Prerequisites
+- Python 3.10+
+- PostgreSQL
+- Pipenv (`pip install pipenv`)
 
-2. Navigate into the project directory:
+### Installation
 
-```sh
- cd python-fastapi-authorization-solution
-```
+1. **Clone the repository:**
+   ```bash
+   git clone <repository_url>
+   cd InFlow-BE
+   ```
 
-3. Install dependencies (this also creates the virtual environment if it doesn’t exist):
+2. **Install dependencies:**
+   ```bash
+   pipenv install
+   ```
 
-```sh
- pipenv install
-```
+3. **Environment Setup:**
+   Create a `.env` file in the root directory with the following variables:
+   ```env
+   DATABASE_URL=postgresql+psycopg2://user:password@localhost:5432/inflow
+   JWT_SECRET=your_super_secret_key
+   ```
+   *Replace values with your actual PostgreSQL credentials and a secure secret.*
 
-4. Activate the virtual environment:
+4. **Initialize Database:**
+   Run migrations to create tables:
+   ```bash
+   pipenv run alembic upgrade head
+   ```
 
-```sh
- pipenv shell
-```
+### Running the Application
 
-5. Set up your PostgreSQL database:
-
-   - Ensure PostgreSQL is installed and running on your machine.
-   - Create a database named `teas_db` if it does not already exist:
-
-```bash
-createdb teas_db
-```
-
-6. Open the application in Visual Studio Code:
-
-```bash
-code .
-```
-
-7. The database connection string is defined in the `config/environment.py` file:
-
-```python
-db_URI = "postgresql://<username>@localhost:5432/teas_db"
-```
-
-> _Modify your database connection string to use your username as the `<username>`._
-
-8. Seed the database with initial data:
-
-   - Run the `seed.py` file to reset the database by dropping existing tables and repopulating it with starter data:
-
-```bash
-pipenv run python seed.py
-```
-
-> You should see output indicating the database was successfully seeded. If there are any errors, check the `db_URI` in the `config/environment.py` file.
-
-9. Start the development server:
-
+Start the development server:
 ```bash
 pipenv run uvicorn main:app --reload
 ```
+The API will be available at `http://localhost:8000`.
 
-> You should now have the app running. Visit [`http://127.0.0.1:8000`](http://127.0.0.1:8000) in your browser to confirm it’s working.
+### Documentation
+FastAPI automatically generates interactive API documentation:
+- **Swagger UI**: `http://localhost:8000/docs`
+- **ReDoc**: `http://localhost:8000/redoc`
 
-10. Now you can test each endpoint using FastAPI’s built-in documentation.
+## API Endpoints
 
-> Navigate to FastAPI Documentation: Open [`http://localhost:8000/docs`](http://localhost:8000/docs) in your browser.
+### Authentication
+- `POST /api/register` - Register a new user
+- `POST /api/login` - Login and receive JWT
 
-<br>
+### Clients
+- `GET /api/clients/` - List all clients
+- `POST /api/clients/` - Create a client
+- `GET /api/clients/{id}` - Get client details
+- `PUT /api/clients/{id}` - Update client
+- `DELETE /api/clients/{id}` - Delete client
 
-### Troubleshooting PostgreSQL
+### Quotes
+- `POST /api/quotes/` - Create a quote
+- `GET /api/quotes/` - List quotes
+- `POST /api/quotes/{id}/send` - Mark quote as sent
+- `POST /api/quotes/{id}/accept` - Mark quote as accepted
+- `GET /api/quotes/{id}/pdf` - Download Quote PDF
 
-- The database connection string is defined in the `config/environment.py` file:
+### Invoices
+- `POST /api/invoices/` - Create an invoice from a quote
+- `GET /api/invoices/` - List invoices
+- `POST /api/invoices/{id}/send` - Mark invoice as sent
+- `GET /api/invoices/{id}/pdf` - Download Invoice PDF
 
-  ```python
-  db_URI = "postgresql://<username>@localhost:5432/teas_db"
+### Payments
+- `POST /api/invoices/{id}/payments` - Record a payment
+- `DELETE /api/payments/{id}` - Delete/Refund a payment
+
+### Analytics
+- `GET /api/analytics/summary` - Get financial summary
+- `GET /api/analytics/export` - Export revenue data as CSV
+
+## Database Models
+- **User**: Application users (freelancers/businesses).
+- **Client**: Customers of the user.
+- **Quote**: Proposed work/products with line items.
+- **LineItem**: Individual items within a quote.
+- **Invoice**: Finalized bill derived from a quote.
+- **Payment**: Transactions recorded against an invoice.
+
+## Development Notes
+- **Migrations**: When modifying models, generate a new migration:
+  ```bash
+  pipenv run alembic revision --autogenerate -m "description_of_change"
+  pipenv run alembic upgrade head
   ```
+- **Code Style**: Updates should follow the existing structure (Models -> Serializers -> Controllers).
 
-- Ensure your PostgreSQL instance is configured to allow connections with the provided credentials.
-- **_Modify your database connection string to use your username as the `<username>`._**
+## References & Resources
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
+- [ReportLab User Guide](https://www.reportlab.com/docs/reportlab-userguide.pdf)
+- [GeeksforGeeks](https://www.geeksforgeeks.org/)
+- [Stack Overflow](https://stackoverflow.com/)
+- [Pydantic Documentation](https://docs.pydantic.dev/)
 
-#### Setting Up a User in PostgreSQL
-
-To connect to a specific PostgreSQL user, use the following command:
-
-```sh
-psql -U <username>
-```
-
-#### Handling "Role Does Not Exist" Error
-
-If you see this error:
-
-```sh
-Error: FATAL: role "<username>" does not exist
-```
-
-it means that the specified user does not exist in PostgreSQL.
-
-#### Creating a New PostgreSQL User
-
-To create the user, run the following command inside `psql`:
-
-```sql
-CREATE ROLE "<username>" WITH LOGIN PASSWORD 'your_secure_password';
-```
-
-> 🔹 **Replace** `<username>` with your desired username and **choose a secure password**.
-
-This will allow you to connect using one of the following database connection strings:
-
-#### Connection Strings:
-
-If **no password is required**:
-
-```python
-db_URI = "postgresql://<username>@localhost:5432/teas_db"
-```
-
-If **a password is required**:
-
-```python
-db_URI = "postgresql://<username>:<your_secure_password>@localhost:5432/teas_db"
-```
-
-This ensures that PostgreSQL correctly authenticates and allows access to the `teas_db` database.
+## Frontend Repository
+https://github.com/AbdullahDashti1/InFlow-FE

@@ -28,7 +28,6 @@ def create_quote(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
-    # Verify client belongs to user
     client = db.query(Client).filter(Client.id == quote.client_id, Client.user_id == current_user.id).first()
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
@@ -67,7 +66,6 @@ def get_quotes(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
-    # Join with Client to filter by user_id
     quotes = db.query(Quote).join(Client).filter(Client.user_id == current_user.id).all()
     return quotes
 
@@ -99,9 +97,6 @@ def update_quote(
         quote.status = quote_update.status
     
     if quote_update.line_items is not None:
-        # Remove existing line items that are not in the update? 
-        # For simplicity, we'll clear and recreate or just add/update if this was more complex.
-        # Let's clear and recreate for MVP
         db.query(LineItem).filter(LineItem.quote_id == quote.id).delete()
         
         subtotal, tax, total = calculate_quote_totals(quote_update.line_items)
@@ -152,7 +147,6 @@ def accept_quote(
          raise HTTPException(status_code=400, detail="Cannot accept expired quote")
 
     quote.status = "accepted"
-    # Todo: Trigger Invoice Creation here (future phase)
     db.commit()
     return {"message": "Quote accepted"}
 
@@ -170,14 +164,12 @@ def generate_quote_pdf(
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # Header
     p.setFont("Helvetica-Bold", 16)
     p.drawString(50, height - 50, f"Quote #{quote.id}")
     p.setFont("Helvetica", 12)
     p.drawString(50, height - 70, f"Date: {quote.created_at.strftime('%Y-%m-%d')}")
     p.drawString(50, height - 90, f"Client: {quote.client.name}")
 
-    # Line Items
     y = height - 130
     p.drawString(50, y, "Description")
     p.drawString(300, y, "Qty")
@@ -194,7 +186,6 @@ def generate_quote_pdf(
         p.drawString(450, y, f"${item.total}")
         y -= 20
 
-    # Totals
     y -= 20
     p.line(50, y+15, 500, y+15)
     p.drawString(350, y, "Subtotal:")

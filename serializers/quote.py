@@ -14,7 +14,6 @@ class LineItemResponse(LineItemBase):
     id: int
     quote_id: int
     total: float
-    # created_at/updated_at inherited from BaseModel if needed, but not strictly required here
 
     class Config:
         orm_mode = True

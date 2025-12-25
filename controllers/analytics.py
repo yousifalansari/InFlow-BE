@@ -22,31 +22,21 @@ def get_analytics_summary(
     today = datetime.date.today()
     first_day_of_month = today.replace(day=1)
 
-    # Total Revenue This Month
-    # Sum of payments paid_at >= first_day_of_month. 
-    # Must filter payments -> invoice -> quote -> client -> user
     total_revenue_month = db.query(func.sum(Payment.amount)).join(Invoice).join(Quote).join(Client).filter(
         Client.user_id == current_user.id,
         Payment.paid_at >= first_day_of_month
     ).scalar() or 0
 
-    # Total Outstanding
-    # Sum of balance_due of invoices, where status != paid? Or just sum(balance_due)
     total_outstanding = db.query(func.sum(Invoice.balance_due)).join(Quote).join(Client).filter(
         Client.user_id == current_user.id
     ).scalar() or 0
 
-    # Overdue Count
     overdue_count = db.query(func.count(Invoice.id)).join(Quote).join(Client).filter(
         Client.user_id == current_user.id,
         Invoice.due_date < today,
         Invoice.balance_due > 0
     ).scalar() or 0
 
-    # Revenue by Month (Last 12 months for example, or all)
-    # Group by month. PostgreSQL specific: date_trunc('month', paid_at)
-    # Using python processing for database agnosticism if small data, but SQL preferred. 
-    # Let's use simple SQL grouping.
     revenue_by_month_query = db.query(
         func.to_char(Payment.paid_at, 'YYYY-MM').label('month'),
         func.sum(Payment.amount).label('total')
@@ -56,7 +46,6 @@ def get_analytics_summary(
 
     revenue_by_month = [{"month": row.month, "total": row.total} for row in revenue_by_month_query]
 
-    # Revenue by Client
     revenue_by_client_query = db.query(
         Client.name,
         func.sum(Payment.amount).label('total')
@@ -79,7 +68,6 @@ def export_analytics_csv(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
-    # Export revenue by client as CSV for MVP
     revenue_by_client_query = db.query(
         Client.name,
         func.sum(Payment.amount).label('total')

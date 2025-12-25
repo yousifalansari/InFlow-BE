@@ -30,7 +30,6 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# Register routers
 app.include_router(QuotesRouter, prefix="/api", tags=["Quotes"])
 app.include_router(ClientsRouter, prefix="/api", tags=["Clients"])
 app.include_router(InvoicesRouter, prefix="/api", tags=["Invoices"])

@@ -42,17 +42,14 @@ def create_invoice(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
-    # Verify quote exists and belongs to user
     quote = db.query(Quote).join(Client).filter(Quote.id == invoice_data.quote_id, Client.user_id == current_user.id).first()
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
     
-    # Check if invoice already exists for this quote
     if quote.invoice:
         raise HTTPException(status_code=400, detail="Invoice already exists for this quote")
 
-    # Generate Invoice Number (Simple sequential per user logic or global)
-    # Ideally should be per-user, but for MVP simple unique string
+ 
     import random
     new_invoice_number = f"INV-{random.randint(1000, 9999)}" 
 
@@ -101,7 +98,6 @@ def generate_invoice_pdf(
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # Header
     p.setFont("Helvetica-Bold", 16)
     p.drawString(50, height - 50, f"Invoice #{invoice.invoice_number}")
     p.setFont("Helvetica", 12)
@@ -109,7 +105,6 @@ def generate_invoice_pdf(
     p.drawString(50, height - 90, f"Due Date: {invoice.due_date}")
     p.drawString(50, height - 110, f"Client: {quote.client.name}")
 
-    # Line Items from Quote
     y = height - 150
     p.drawString(50, y, "Description")
     p.drawString(300, y, "Qty")
@@ -126,7 +121,6 @@ def generate_invoice_pdf(
         p.drawString(450, y, f"${item.total}")
         y -= 20
 
-    # Totals
     y -= 20
     p.line(50, y+15, 500, y+15)
     p.drawString(350, y, "Subtotal:")

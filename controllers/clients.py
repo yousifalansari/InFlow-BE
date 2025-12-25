@@ -25,7 +25,6 @@ def create_client(
     current_user: UserModel = Depends(get_current_user)
 ):
     """Create a new client for the current user."""
-    # Check for existing email for this user (optional, but good practice)
     existing_client = db.query(Client).filter(
         Client.user_id == current_user.id,
         Client.email == client.email

@@ -13,9 +13,6 @@ from datetime import date
 
 router = APIRouter(prefix="", tags=["Payments"]) # Prefix handle in main or per-endpoint if needed
 
-# Requirements said "/invoices/{id}/payments" or just "/payments"
-# Let's support POST /invoices/{id}/payments to record payment
-# and DELETE /payments/{id}
 
 @router.post("/invoices/{invoice_id}/payments", response_model=PaymentResponse, status_code=status.HTTP_201_CREATED)
 def create_payment(
@@ -35,25 +32,16 @@ def create_payment(
         reference=payment_data.reference
     )
     
-    # Update Invoice Balance
-    # Balance due = Total - Sum(Payments)
-    # We can just subtract the new amount
     
     if invoice.balance_due < payment_data.amount:
-        # Optional: Prevent overpayment? Or allow negative balance?
-        # Let's allow but maybe warn or just handle it. 
         pass 
 
     invoice.balance_due -= payment_data.amount
     
-    # Update Status
     if invoice.balance_due <= 0:
         invoice.status = "paid"
         invoice.balance_due = 0 # Prevent negative if overpaid?
     else:
-        # Check overdue? Not strictly needed here, usually done via background job or on read.
-        # But if partial payment, stays as sent or partial? Requirement said: "if 0, set invoice status to paid"
-        # "If due date < today and balance_due > 0, status should be overdue."
         pass
 
     db.add(new_payment)
@@ -73,10 +61,8 @@ def delete_payment(
     
     invoice = payment.invoice
     
-    # Revert balance
     invoice.balance_due += payment.amount
     
-    # Revert status if it was paid
     if invoice.status == "paid" and invoice.balance_due > 0:
         if invoice.due_date < date.today():
              invoice.status = "overdue"
