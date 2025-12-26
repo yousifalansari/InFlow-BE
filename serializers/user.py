@@ -5,10 +5,20 @@ class UserSchema(BaseModel):
     username: str
     email: str
     password: str
-    company_name: str | None = None
+    role: str | None = None
+    company_name: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+class UserUpdate(BaseModel):
+    username: str | None = None
+    email: str | None = None
+    company_name: str | None = None
+
+class UserPasswordUpdate(BaseModel):
+    current_password: str
+    new_password: str
 
 class UserResponseSchema(BaseModel):
     username: str
@@ -19,7 +29,7 @@ class UserResponseSchema(BaseModel):
     updated_at: datetime | None = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class UserLogin(BaseModel):
     username: str
@@ -30,4 +40,4 @@ class UserToken(BaseModel):
     message: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True

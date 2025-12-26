@@ -15,8 +15,8 @@ def get_clients(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
-    """List all clients for the current user."""
-    return db.query(Client).filter(Client.user_id == current_user.id).all()
+    """List all clients for the current user's company."""
+    return db.query(Client).join(UserModel).filter(UserModel.company_name == current_user.company_name).all()
 
 @router.post("/", response_model=ClientResponse, status_code=status.HTTP_201_CREATED)
 def create_client(
@@ -25,19 +25,20 @@ def create_client(
     current_user: UserModel = Depends(get_current_user)
 ):
     """Create a new client for the current user."""
-    existing_client = db.query(Client).filter(
-        Client.user_id == current_user.id,
+    # Check existence within the same company
+    existing_client = db.query(Client).join(UserModel).filter(
+        UserModel.company_name == current_user.company_name,
         Client.email == client.email
     ).first()
     
     if existing_client:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Client with this email already exists."
+            detail="Client with this email already exists in your company."
         )
 
     new_client = Client(
-        **client.dict(),
+        **client.model_dump(),
         user_id=current_user.id
     )
     db.add(new_client)
@@ -51,10 +52,10 @@ def get_client(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
-    """Get a specific client by ID."""
-    client = db.query(Client).filter(
+    """Get a specific client by ID (Company Shared)."""
+    client = db.query(Client).join(UserModel).filter(
         Client.id == client_id,
-        Client.user_id == current_user.id
+        UserModel.company_name == current_user.company_name
     ).first()
     
     if not client:
@@ -71,10 +72,10 @@ def update_client(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
-    """Update a specific client."""
-    client = db.query(Client).filter(
+    """Update a specific client (Company Shared)."""
+    client = db.query(Client).join(UserModel).filter(
         Client.id == client_id,
-        Client.user_id == current_user.id
+        UserModel.company_name == current_user.company_name
     ).first()
     
     if not client:
@@ -83,7 +84,7 @@ def update_client(
             detail="Client not found"
         )
 
-    for key, value in client_update.dict(exclude_unset=True).items():
+    for key, value in client_update.model_dump(exclude_unset=True).items():
         setattr(client, key, value)
     
     db.commit()
@@ -96,10 +97,10 @@ def delete_client(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
-    """Delete a specific client."""
-    client = db.query(Client).filter(
+    """Delete a specific client (Company Shared)."""
+    client = db.query(Client).join(UserModel).filter(
         Client.id == client_id,
-        Client.user_id == current_user.id
+        UserModel.company_name == current_user.company_name
     ).first()
     
     if not client:

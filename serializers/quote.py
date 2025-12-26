@@ -16,19 +16,23 @@ class LineItemResponse(LineItemBase):
     total: float
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class QuoteBase(BaseModel):
     client_id: int
     expiry_date: Optional[date] = None
+    title: str
 
 class QuoteCreate(QuoteBase):
     line_items: List[LineItemCreate]
 
 class QuoteUpdate(BaseModel):
     expiry_date: Optional[date] = None
+    title: Optional[str] = None
     status: Optional[str] = None
     line_items: Optional[List[LineItemCreate]] = None
+
+from serializers.client import ClientResponse
 
 class QuoteResponse(QuoteBase):
     id: int
@@ -39,6 +43,7 @@ class QuoteResponse(QuoteBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
     line_items: List[LineItemResponse] = []
+    client: Optional[ClientResponse] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True

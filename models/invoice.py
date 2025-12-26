@@ -7,6 +7,7 @@ class Invoice(BaseModel):
 
     quote_id = Column(Integer, ForeignKey("quotes.id"), nullable=False, unique=True)
     invoice_number = Column(String, unique=True, nullable=False)
+    title = Column(String, nullable=False)
     due_date = Column(Date, nullable=False)
     status = Column(String(50), default="sent", nullable=False) # sent, paid, overdue
     subtotal = Column(Numeric(10, 2), nullable=False)
@@ -15,4 +16,4 @@ class Invoice(BaseModel):
     balance_due = Column(Numeric(10, 2), nullable=False)
 
     quote = relationship("Quote", back_populates="invoice")
-    payments = relationship("Payment", back_populates="invoice")
+    payments = relationship("Payment", back_populates="invoice", cascade="all, delete-orphan")

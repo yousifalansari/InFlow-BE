@@ -16,7 +16,7 @@ class UserModel(Base):
     email = Column(String, nullable=False, unique=True)
     password_hash = Column(String, nullable=True)
     role = Column(String, nullable=True)
-    company_name = Column(String, nullable=True)
+    company_name = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
@@ -32,7 +32,11 @@ class UserModel(Base):
         payload = {
             "exp": datetime.now(timezone.utc) + timedelta(days=1),
             "iat": datetime.now(timezone.utc),
-            "sub": str(self.id)
+            "sub": str(self.id),
+            "username": self.username,
+            "role": self.role or "owner",
+            "email": self.email,
+            "company_name": self.company_name
         }
         token = jwt.encode(payload, secret, algorithm="HS256")
         return token

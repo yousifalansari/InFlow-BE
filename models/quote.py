@@ -11,7 +11,8 @@ class Quote(BaseModel):
     tax = Column(Numeric(10, 2), default=0, nullable=False)
     total = Column(Numeric(10, 2), nullable=False)
     expiry_date = Column(Date, nullable=True)
+    title = Column(String, nullable=False)
 
     client = relationship("Client", back_populates="quotes")
     line_items = relationship("LineItem", back_populates="quote", cascade="all, delete-orphan")
-    invoice = relationship("Invoice", back_populates="quote", uselist=False)
+    invoice = relationship("Invoice", back_populates="quote", uselist=False, cascade="all, delete-orphan")

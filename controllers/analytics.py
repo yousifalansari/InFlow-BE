@@ -9,11 +9,10 @@ from models.quote import Quote
 from models.invoice import Invoice
 from models.payment import Payment
 import datetime
-import csv
-import io
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
+@router.get("/summary")
 @router.get("/summary")
 def get_analytics_summary(
     db: Session = Depends(get_db),
@@ -22,35 +21,40 @@ def get_analytics_summary(
     today = datetime.date.today()
     first_day_of_month = today.replace(day=1)
 
-    total_revenue_month = db.query(func.sum(Payment.amount)).join(Invoice).join(Quote).join(Client).filter(
-        Client.user_id == current_user.id,
+    # 1. Revenue this month
+    total_revenue_month = db.query(func.sum(Payment.amount)).join(Invoice).join(Quote).join(Client).join(UserModel).filter(
+        UserModel.company_name == current_user.company_name,
         Payment.paid_at >= first_day_of_month
     ).scalar() or 0
 
-    total_outstanding = db.query(func.sum(Invoice.balance_due)).join(Quote).join(Client).filter(
-        Client.user_id == current_user.id
+    # 2. Outstanding Balance
+    total_outstanding = db.query(func.sum(Invoice.balance_due)).join(Quote).join(Client).join(UserModel).filter(
+        UserModel.company_name == current_user.company_name
     ).scalar() or 0
 
-    overdue_count = db.query(func.count(Invoice.id)).join(Quote).join(Client).filter(
-        Client.user_id == current_user.id,
+    # 3. Overdue Invoices Count
+    overdue_count = db.query(func.count(Invoice.id)).join(Quote).join(Client).join(UserModel).filter(
+        UserModel.company_name == current_user.company_name,
         Invoice.due_date < today,
         Invoice.balance_due > 0
     ).scalar() or 0
 
+    # 4. Revenue by Month
     revenue_by_month_query = db.query(
         func.to_char(Payment.paid_at, 'YYYY-MM').label('month'),
         func.sum(Payment.amount).label('total')
-    ).join(Invoice).join(Quote).join(Client).filter(
-        Client.user_id == current_user.id
+    ).join(Invoice).join(Quote).join(Client).join(UserModel).filter(
+        UserModel.company_name == current_user.company_name
     ).group_by('month').all()
 
     revenue_by_month = [{"month": row.month, "total": row.total} for row in revenue_by_month_query]
 
+    # 5. Revenue by Client
     revenue_by_client_query = db.query(
         Client.name,
         func.sum(Payment.amount).label('total')
-    ).join(Quote, Client.id == Quote.client_id).join(Invoice).join(Payment).filter(
-        Client.user_id == current_user.id
+    ).join(Quote, Client.id == Quote.client_id).join(Invoice).join(Payment).join(UserModel).filter(
+        UserModel.company_name == current_user.company_name
     ).group_by(Client.name).all()
 
     revenue_by_client = [{"client": row.name, "total": row.total} for row in revenue_by_client_query]
@@ -63,23 +67,4 @@ def get_analytics_summary(
         "revenue_by_client": revenue_by_client
     }
 
-@router.get("/export")
-def export_analytics_csv(
-    db: Session = Depends(get_db),
-    current_user: UserModel = Depends(get_current_user)
-):
-    revenue_by_client_query = db.query(
-        Client.name,
-        func.sum(Payment.amount).label('total')
-    ).join(Quote, Client.id == Quote.client_id).join(Invoice).join(Payment).filter(
-        Client.user_id == current_user.id
-    ).group_by(Client.name).all()
 
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow(['Client', 'Total Revenue'])
-    for row in revenue_by_client_query:
-        writer.writerow([row.name, row.total])
-    
-    output.seek(0)
-    return Response(content=output.getvalue(), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=revenue_by_client.csv"})
