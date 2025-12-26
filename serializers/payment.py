@@ -7,6 +7,7 @@ class PaymentBase(BaseModel):
     amount: Decimal
     method: str
     reference: Optional[str] = None
+    payment_date: Optional[datetime] = None
 
 class PaymentCreate(PaymentBase):
     pass
@@ -19,4 +20,4 @@ class PaymentResponse(PaymentBase):
     updated_at: Optional[datetime] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
