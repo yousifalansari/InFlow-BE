@@ -1,17 +1,75 @@
 # InFlow - Backend
 
+The backend API for the **InFlow** application. This repository handles authentication, database management, and business logic for the InFlow invoice management system.
+
+For details on the Frontend and the full project overview, please visit the **[Frontend Repository](https://github.com/AbdullahDashti1/InFlow-FE)**.
+
 ## Overview
 InFlow is a comprehensive invoice and quote management system designed for freelancers and small to medium-sized businesses (SMBs). This backend API powers the InFlow application, enabling users to manage clients, generate quotes, convert them to invoices, track payments, and visualize analytics.
 
-## Features
-- **User Authentication**: Secure JWT-based registration and login.
-- **Client Management**: Create, read, update, and delete client profiles.
-- **Quote Management**: Create quotes with line items, calculate totals, and generate PDF versions.
-- **Invoice Generation**: Convert quotes to invoices, preventing duplicates, and implementing status workflows (Sent, Paid, Overdue).
-- **Payment Tracking**: Record partial or full payments, automatically updating invoice balance and status.
-- **Analytics**: Real-time dashboard data including monthly revenue, outstanding balances, and CSV export.
-- **PDF Generation**: Professional PDF generation for Quotes and Invoices.
+## API Endpoints
+### User & Settings
+- `POST /api/sign-up` - Register a new user
+- `POST /api/sign-in` - Login and receive JWT
+- `PUT /api/me` - Update profile
+- `PUT /api/me/password` - Change password
 
+### Clients
+- `GET /api/clients/` - List all clients
+- `POST /api/clients/` - Create a client
+- `GET /api/clients/{id}` - Get client details
+- `PUT /api/clients/{id}` - Update client
+- `DELETE /api/clients/{id}` - Delete client
+
+### Quotes
+- `POST /api/quotes/` - Create a quote
+- `GET /api/quotes/` - List quotes
+- `POST /api/quotes/{id}/send` - Mark quote as sent
+- `POST /api/quotes/{id}/accept` - Mark quote as accepted
+- `GET /api/quotes/{id}/pdf` - Download Quote PDF
+- `DELETE /api/quotes/{id}` - Delete quote and associated invoice
+
+### Invoices
+- `POST /api/invoices/` - Create an invoice from a quote
+- `GET /api/invoices/` - List invoices
+- `POST /api/invoices/{id}/send` - Mark invoice as sent
+- `GET /api/invoices/{id}/pdf` - Download Invoice PDF
+- `DELETE /api/invoices/{id}` - Delete invoice
+
+### Payments
+- `POST /api/invoices/{id}/payments` - Record a payment
+- `PUT /api/payments/{id}` - Update a payment
+- `DELETE /api/payments/{id}` - Delete/Refund a payment
+
+### Analytics
+- `GET /api/analytics/summary` - Get financial summary
+- `GET /api/analytics/export` - Export revenue data as CSV
+
+## Database Models
+- **User**: Application users (freelancers/businesses).
+- **Client**: Customers of the user.
+- **Quote**: Proposed work/products with line items.
+- **LineItem**: Individual items within a quote.
+- **Invoice**: Finalized bill derived from a quote.
+- **Payment**: Transactions recorded against an invoice.
+
+## Development Notes
+- **Migrations**: When modifying models, generate a new migration:
+  ```bash
+  pipenv run alembic revision --autogenerate -m "description_of_change"
+  pipenv run alembic upgrade head
+  ```
+- **Code Style**: Updates should follow the existing structure (Models -> Serializers -> Controllers).
+
+## Features
+- **User Authentication**: Secure JWT-based registration and login with **Multi-User Support** (Company-based data isolation).
+- **Client Management**: Create, read, update, and delete client profiles.
+- **Quote Management**: Create quotes with line items, calculate totals, generate PDF versions, and **delete quotes** (with cascading effects).
+- **Invoice Generation**: Convert quotes to invoices, preventing duplicates, and implementing status workflows (Sent, Paid, Overdue).
+- **Payment Tracking**: Record partial or full payments, automatically updating invoice balance and status. **Strict validation** prevents overpayment.
+- **Analytics**: Real-time dashboard data including monthly revenue, outstanding balances, and CSV export.
+- **PDF Generation**: Professional PDF generation for Quotes and Invoices with dynamic file naming.
+- **Settings**: Secure password update endpoints.
 
 ## Technologies Used
 - **Language**: Python 3.x
@@ -86,64 +144,3 @@ The API will be available at `http://localhost:8000`.
 FastAPI automatically generates interactive API documentation:
 - **Swagger UI**: `http://localhost:8000/docs`
 - **ReDoc**: `http://localhost:8000/redoc`
-
-## API Endpoints
-
-### Authentication
-- `POST /api/register` - Register a new user
-- `POST /api/login` - Login and receive JWT
-
-### Clients
-- `GET /api/clients/` - List all clients
-- `POST /api/clients/` - Create a client
-- `GET /api/clients/{id}` - Get client details
-- `PUT /api/clients/{id}` - Update client
-- `DELETE /api/clients/{id}` - Delete client
-
-### Quotes
-- `POST /api/quotes/` - Create a quote
-- `GET /api/quotes/` - List quotes
-- `POST /api/quotes/{id}/send` - Mark quote as sent
-- `POST /api/quotes/{id}/accept` - Mark quote as accepted
-- `GET /api/quotes/{id}/pdf` - Download Quote PDF
-
-### Invoices
-- `POST /api/invoices/` - Create an invoice from a quote
-- `GET /api/invoices/` - List invoices
-- `POST /api/invoices/{id}/send` - Mark invoice as sent
-- `GET /api/invoices/{id}/pdf` - Download Invoice PDF
-
-### Payments
-- `POST /api/invoices/{id}/payments` - Record a payment
-- `DELETE /api/payments/{id}` - Delete/Refund a payment
-
-### Analytics
-- `GET /api/analytics/summary` - Get financial summary
-- `GET /api/analytics/export` - Export revenue data as CSV
-
-## Database Models
-- **User**: Application users (freelancers/businesses).
-- **Client**: Customers of the user.
-- **Quote**: Proposed work/products with line items.
-- **LineItem**: Individual items within a quote.
-- **Invoice**: Finalized bill derived from a quote.
-- **Payment**: Transactions recorded against an invoice.
-
-## Development Notes
-- **Migrations**: When modifying models, generate a new migration:
-  ```bash
-  pipenv run alembic revision --autogenerate -m "description_of_change"
-  pipenv run alembic upgrade head
-  ```
-- **Code Style**: Updates should follow the existing structure (Models -> Serializers -> Controllers).
-
-## References & Resources
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
-- [ReportLab User Guide](https://www.reportlab.com/docs/reportlab-userguide.pdf)
-- [GeeksforGeeks](https://www.geeksforgeeks.org/)
-- [Stack Overflow](https://stackoverflow.com/)
-- [Pydantic Documentation](https://docs.pydantic.dev/)
-
-## Frontend Repository
-https://github.com/AbdullahDashti1/InFlow-FE
