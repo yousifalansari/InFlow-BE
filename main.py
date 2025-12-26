@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from controllers.quotes import router as QuotesRouter
@@ -19,8 +20,12 @@ app = FastAPI(
 
 origins = [
     "http://127.0.0.1:5173",
-    "http://localhost:5173"
+    "http://localhost:5173",
 ]
+
+env_origins = os.getenv("ALLOWED_ORIGINS", "")
+if env_origins:
+    origins.extend([origin.strip() for origin in env_origins.split(",")])
 
 app.add_middleware(
     CORSMiddleware,
